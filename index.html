@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoopConnect — Local Skilled-Worker Marketplace | SIH 2026</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#0B1F3A',
+                        deepBlue: '#123B73',
+                        brightBlue: '#2563EB',
+                        slateBg: '#F8FAFC',
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '1.25rem',
+                        '3xl': '1.5rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta+ Sans', sans-serif;
+            background-color: #F8FAFC;
+            color: #1e293b;
+        }
+        /* Custom smooth scroll and subtle transitions */
+        html {
+            scroll-behavior: smooth;
+        }
+        .transition-all-300 {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Toast Notification Animation */
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-animate {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-brightBlue selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- GLOBAL NAVBAR -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" onclick="router.navigate('home')" class="flex items-center gap-3 group">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-navy via-deepBlue to-brightBlue flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-all-300">
+                    C<span class="text-xs text-blue-200">⋈</span>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold text-navy tracking-tight">Coop<span class="text-brightBlue">Connect</span></span>
+                    <span class="block text-[10px] uppercase tracking-widest font-semibold text-slate-400">SIH 2026 Prototype</span>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+                <a href="#home" onclick="router.navigate('home')" class="hover:text-brightBlue transition-colors">Home</a>
+                <a href="#services" onclick="router.navigate('home'); scrollToSection('services-section')" class="hover:text-brightBlue transition-colors">Services</a>
+                <a href="#workers" onclick="router.navigate('home'); scrollToSection('find-workers-section')" class="hover:text-brightBlue transition-colors">Find Workers</a>
+                <a href="#how-it-works" onclick="router.navigate('home'); scrollToSection('how-it-works-section')" class="hover:text-brightBlue transition-colors">How It Works</a>
+                <a href="#trust" onclick="router.navigate('home'); scrollToSection('trust-section')" class="hover:text-brightBlue transition-colors">Trust & Safety</a>
+                <a href="#about" onclick="router.navigate('home'); scrollToSection('about-section')" class="hover:text-brightBlue transition-colors">About</a>
+            </nav>
+
+            <!-- Right Actions -->
+            <div class="hidden md:flex items-center gap-4">
+                <button onclick="openDashboard()" class="relative p-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-2 text-sm font-semibold">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 text-brightBlue"></i>
+                    My Dashboard
+                    <span id="booking-badge" class="hidden absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+                </button>
+                <button onclick="openWorkerModal()" class="bg-gradient-to-r from-navy to-deepBlue hover:from-deepBlue hover:to-brightBlue text-white font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-navy/20 hover:shadow-lg transition-all text-sm flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    Join as Worker
+                </button>
+            </div>
+
+            <!-- Mobile Hamburger -->
+            <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Slide Menu -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 p-6 shadow-xl flex flex-col gap-4 text-base font-semibold">
+            <a href="#home" onclick="toggleMobileMenu(); router.navigate('home')" class="p-2 hover:bg-slate-50 rounded-lg">Home</a>
+            <a href="#services" onclick="toggleMobileMenu(); router.navigate('home'); scrollToSection('services-section')" class="p-2 hover:bg-slate-50 rounded-lg">Services</a>
+            <a href="#workers" onclick="toggleMobileMenu(); router.navigate('home'); scrollToSection('find-workers-section')" class="p-2 hover:bg-slate-50 rounded-lg">Find Workers</a>
+            <a href="#how-it-works" onclick="toggleMobileMenu(); router.navigate('home'); scrollToSection('how-it-works-section')" class="p-2 hover:bg-slate-50 rounded-lg">How It Works</a>
+            <a href="#trust" onclick="toggleMobileMenu(); router.navigate('home'); scrollToSection('trust-section')" class="p-2 hover:bg-slate-50 rounded-lg">Trust & Safety</a>
+            <a href="#about" onclick="toggleMobileMenu(); router.navigate('home'); scrollToSection('about-section')" class="p-2 hover:bg-slate-50 rounded-lg">About</a>
+            <hr class="border-slate-100 my-1">
+            <button onclick="toggleMobileMenu(); openDashboard()" class="w-full py-3 rounded-xl border border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-2">
+                <i data-lucide="layout-dashboard" class="w-4 h-4 text-brightBlue"></i> My Dashboard
+            </button>
+            <button onclick="toggleMobileMenu(); openWorkerModal()" class="w-full bg-navy text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md">
+                <i data-lucide="user-plus" class="w-4 h-4"></i> Join as Worker
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main id="app-container" class="flex-grow">
+        <!-- RENDERED DYNAMICALLY BY ROUTER -->
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-navy text-slate-300 pt-16 pb-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+                <!-- Col 1: Brand -->
+                <div class="lg:col-span-2">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-brightBlue flex items-center justify-center text-white font-bold text-xl shadow-md">
+                            C
+                        </div>
+                        <span class="text-2xl font-extrabold text-white tracking-tight">Coop<span class="text-brightBlue">Connect</span></span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
+                        Connecting customers with verified local skilled workers through a fair, transparent cooperative-inspired marketplace model. Built for Smart India Hackathon 2026.
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-950/80 text-blue-400 text-xs font-semibold border border-blue-800/50">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> SIH 2026 Finalist Prototype
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Col 2: Platform -->
+                <div>
+                    <h4 class="text-white font-bold text-sm tracking-wider uppercase mb-4">Platform</h4>
+                    <ul class="space-y-3 text-sm text-slate-400">
+                        <li><a href="#workers" onclick="scrollToSection('find-workers-section')" class="hover:text-white transition-colors">Find Workers</a></li>
+                        <li><a href="#services" onclick="scrollToSection('services-section')" class="hover:text-white transition-colors">Service Categories</a></li>
+                        <li><a href="#" onclick="openWorkerModal()" class="hover:text-white transition-colors">Become a Worker</a></li>
+                        <li><a href="#how-it-works" onclick="scrollToSection('how-it-works-section')" class="hover:text-white transition-colors">How It Works</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Company -->
+                <div>
+                    <h4 class="text-white font-bold text-sm tracking-wider uppercase mb-4">Company</h4>
+                    <ul class="space-y-3 text-sm text-slate-400">
+                        <li><a href="#about" onclick="scrollToSection('about-section')" class="hover:text-white transition-colors">About CoopConnect</a></li>
+                        <li><a href="#trust" onclick="scrollToSection('trust-section')" class="hover:text-white transition-colors">Trust & Safety</a></li>
+                        <li><a href="#" onclick="showToast('Contact Support: support@coopconnect.sih2026.in', 'info')" class="hover:text-white transition-colors">Contact Support</a></li>
+                        <li><a href="#" onclick="showToast('CoopModel Whitepaper downloaded/viewed', 'success')" class="hover:text-white transition-colors">Cooperative Model</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Resources -->
+                <div>
+                    <h4 class="text-white font-bold text-sm tracking-wider uppercase mb-4">Resources</h4>
+                    <ul class="space-y-3 text-sm text-slate-400">
+                        <li><a href="#" onclick="showToast('Help center loaded successfully', 'info')" class="hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="#" onclick="showToast('FAQ modal opened', 'info')" class="hover:text-white transition-colors">FAQs</a></li>
+                        <li><a href="#" onclick="showToast('Terms of Service viewed', 'info')" class="hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="#" onclick="showToast('Privacy Policy viewed', 'info')" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+                <p>&copy; 2026 CoopConnect. All rights reserved. Made with ❤️ for Smart India Hackathon 2026.</p>
+                <div class="flex items-center gap-6">
+                    <button onclick="localStorage.clear(); initDefaultData(); location.reload();" class="hover:text-slate-300 transition-colors underline decoration-slate-600">Reset Demo Data</button>
+                    <span>SIH ID: #CC-2026-SIH</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALS CONTAINER -->
+    <div id="modal-container"></div>
+
+    <!-- JAVASCRIPT APPLICATION CORE -->
+    <script>
+        /* ==========================================
+           1. INITIAL MOCK DATA & LOCALSTORAGE SETUP
+           ========================================== */
+        const DEFAULT_WORKERS = [
+            {
+                id: 1,
+                name: "Rakesh Kumar",
+                skill: "Electrician",
+                location: "Lucknow",
+                distance: 1.8,
+                rating: 4.9,
+                reviews: 128,
+                jobsCompleted: 342,
+                price: 299,
+                verified: true,
+                availability: "Available Today",
+                experience: "8+ Years Experience",
+                bio: "Expert licensed electrician specializing in residential wiring, appliance installation, and emergency fault repair.",
+                servicesOffered: ["Wiring & Rewiring", "MCB & Fuse Repair", "Fan & Light Installation", "Inverter Setup"],
+                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 2,
+                name: "Priya Sharma",
+                skill: "Cleaner",
+                location: "Lucknow",
+                distance: 2.3,
+                rating: 4.8,
+                reviews: 96,
+                jobsCompleted: 215,
+                price: 399,
+                verified: true,
+                availability: "Available Today",
+                experience: "5+ Years Experience",
+                bio: "Professional deep cleaning specialist for residential homes, kitchens, bathrooms, and post-renovation cleanup.",
+                servicesOffered: ["Deep Home Cleaning", "Kitchen Sanitization", "Bathroom Scrubbing", "Sofa & Carpet Cleaning"],
+                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 3,
+                name: "Amit Mishra",
+                skill: "Plumber",
+                location: "Lucknow",
+                distance: 1.4,
+                rating: 4.8,
+                reviews: 112,
+                jobsCompleted: 289,
+                price: 299,
+                verified: true,
+                availability: "Available Today",
+                experience: "7+ Years Experience",
+                bio: "Master plumber offering fast solutions for leaky pipes, clogged drains, faucet installations, and water tank repair.",
+                servicesOffered: ["Leak Repair", "Tap & Basin Fitting", "Drain Unblocking", "Water Pump Repair"],
+                avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 4,
+                name: "Suresh Verma",
+                skill: "Carpenter",
+                location: "Lucknow",
+                distance: 3.1,
+                rating: 4.7,
+                reviews: 84,
+                jobsCompleted: 178,
+                price: 499,
+                verified: true,
+                availability: "Available Tomorrow",
+                experience: "10+ Years Experience",
+                bio: "Skilled carpenter proficient in custom furniture assembly, door alignment, modular kitchen fittings, and woodwork.",
+                servicesOffered: ["Furniture Assembly", "Door & Lock Repair", "Modular Fitting", "Custom Woodwork"],
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 5,
+                name: "Neha Singh",
+                skill: "AC Repair",
+                location: "Lucknow",
+                distance: 2.7,
+                rating: 4.9,
+                reviews: 145,
+                jobsCompleted: 410,
+                price: 449,
+                verified: true,
+                availability: "Available Today",
+                experience: "6+ Years Experience",
+                bio: "Certified HVAC technician specializing in split and window AC servicing, gas refilling, and cooling diagnostics.",
+                servicesOffered: ["AC General Servicing", "Gas Charging", "Installation & Uninstallation", "PCB Repair"],
+                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 6,
+                name: "Arjun Yadav",
+                skill: "Mechanic",
+                location: "Lucknow",
+                distance: 4.0,
+                rating: 4.6,
+                reviews: 72,
+                jobsCompleted: 156,
+                price: 349,
+                verified: true,
+                availability: "Available Today",
+                experience: "9+ Years Experience",
+                bio: "Experienced doorstep two-wheeler and car mechanic providing quick breakdown assistance and scheduled servicing.",
+                servicesOffered: ["Bike Servicing", "Brake Adjustment", "Battery Jumpstart", "Flat Tyre Assistance"],
+                avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 7,
+                name: "Rahul Gupta",
+                skill: "Electrician",
+                location: "Lucknow",
+                distance: 3.5,
+                rating: 4.7,
+                reviews: 63,
+                jobsCompleted: 140,
+                price: 249,
+                verified: true,
+                availability: "Available Today",
+                experience: "4+ Years Experience",
+                bio: "Prompt and reliable electrical technician for lighting setups, switchboard repairs, and appliance troubleshooting.",
+                servicesOffered: ["Switchboard Repair", "LED Strip & Chandelier Setup", "Geyser Wiring", "Earthing Check"],
+                avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 8,
+                name: "Pooja Verma",
+                skill: "Cleaner",
+                location: "Lucknow",
+                distance: 1.9,
+                rating: 4.9,
+                reviews: 118,
+                jobsCompleted: 295,
+                price: 349,
+                verified: true,
+                availability: "Available Today",
+                experience: "5+ Years Experience",
+                bio: "Detail-oriented residential cleaning expert ensuring spotless living spaces with eco-friendly cleaning agents.",
+                servicesOffered: ["Full House Cleaning", "Floor Polishing", "Water Tank Cleaning", "Balcony Cleaning"],
+                avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 9,
+                name: "Manoj Kumar",
+                skill: "Plumber",
+                location: "Lucknow",
+                distance: 5.2,
+                rating: 4.5,
+                reviews: 54,
+                jobsCompleted: 120,
+                price: 299,
+                verified: true,
+                availability: "Available Tomorrow",
+                experience: "6+ Years Experience",
+                bio: "Reliable plumber handling sanitary fittings, pipeline welding, bathroom renovations, and blockage clearing.",
+                servicesOffered: ["Sanitary Fitting", "Pipeline Welding", "Flush Tank Repair", "Shower Installation"],
+                avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 10,
+                name: "Deepak Singh",
+                skill: "Appliance Repair",
+                location: "Lucknow",
+                distance: 2.1,
+                rating: 4.8,
+                reviews: 130,
+                jobsCompleted: 310,
+                price: 399,
+                verified: true,
+                availability: "Available Today",
+                experience: "8+ Years Experience",
+                bio: "Expert technician for refrigerators, washing machines, microwaves, and water purifiers (RO).",
+                servicesOffered: ["Washing Machine Repair", "Refrigerator Gas Filling", "Microwave Fix", "RO Filter Replacement"],
+                avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80"
+            }
+        ];
+
+        function initDefaultData() {
+            if (!localStorage.getItem('coop_workers')) {
+                localStorage.setItem('coop_workers', JSON.stringify(DEFAULT_WORKERS));
+            }
+            if (!localStorage.getItem('coop_bookings')) {
+                // Preload sample booking for judge demo flow
+                const sampleBookings = [
+                    {
+                        id: 'CC-BK-9821',
+                        workerId: 1,
+                        workerName: 'Rakesh Kumar',
+                        skill: 'Electrician',
+                        service: 'Electrical Wiring & Repair',
+                        date: '2026-03-25',
+                        time: '10:00 AM',
+                        address: 'Flat 402, Gomti Nagar, Lucknow',
+                        amount: 319,
+                        status: 'Confirmed',
+                        paymentStatus: 'Pending',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                localStorage.setItem('coop_bookings', JSON.stringify(sampleBookings));
+            }
+            if (!localStorage.getItem('coop_reviews')) {
+                localStorage.setItem('coop_reviews', JSON.stringify([]));
+            }
+        }
+        initDefaultData();
+
+        /* LocalStorage Helper Functions */
+        function getWorkers() {
+            return JSON.parse(localStorage.getItem('coop_workers')) || DEFAULT_WORKERS;
+        }
+        function saveWorkers(workers) {
+            localStorage.setItem('coop_workers', JSON.stringify(workers));
+        }
+        function getBookings() {
+            return JSON.parse(localStorage.getItem('coop_bookings')) || [];
+        }
+        function saveBooking(booking) {
+            const bookings = getBookings();
+            bookings.unshift(booking);
+            localStorage.setItem('coop_bookings', JSON.stringify(bookings));
+            updateBookingBadge();
+        }
+        function updateBooking(bookingId, updates) {
+            let bookings = getBookings();
+            bookings = bookings.map(b => b.id === bookingId ? { ...b, ...updates } : b);
+            localStorage.setItem('coop_bookings', JSON.stringify(bookings));
+            updateBookingBadge();
+        }
+        function getReviews() {
+            return JSON.parse(localStorage.getItem('coop_reviews')) || [];
+        }
+        function saveReviewData(review) {
+            const reviews = getReviews();
+            reviews.unshift(review);
+            localStorage.setItem('coop_reviews', JSON.stringify(reviews));
+        }
+
+        /* Toast Notifications */
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast-animate pointer-events-auto flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl text-sm font-semibold text-white ${
+                type === 'success' ? 'bg-emerald-600' : type === 'info' ? 'bg-navy' : 'bg-blue-600'
+            }`;
+            
+            const iconName = type === 'success' ? 'check-circle-2' : 'info';
+            toast.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 shrink-0"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function updateBookingBadge() {
+            const bookings = getBookings();
+            const badge = document.getElementById('booking-badge');
+            if (badge) {
+                if (bookings.length > 0) {
+                    badge.innerText = bookings.length;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        /* ==========================================
+           2. ROUTER & PAGE VIEWS
+           ========================================== */
+        const router = {
+            current: 'home',
+            navigate: function(page, params = {}) {
+                this.current = page;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                renderApp(params);
+            }
+        };
+
+        function renderApp(params = {}) {
+            const container = document.getElementById('app-container');
+            if (router.current === 'home') {
+                container.innerHTML = renderHomePage();
+            } else if (router.current === 'dashboard') {
+                container.innerHTML = renderDashboardPage();
+            }
+            lucide.createIcons();
+            updateBookingBadge();
+        }
+
+        /* ==========================================
+           3. HOME PAGE COMPONENTS
+           ========================================== */
+        function renderHomePage() {
+            return `
+                <!-- HERO SECTION -->
+                <section id="home" class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-32 bg-gradient-to-b from-blue-50/50 via-white to-slateBg">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                            <!-- Left Hero Content -->
+                            <div class="lg:col-span-7 space-y-6">
+                                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100/80 text-brightBlue text-xs font-bold tracking-wide uppercase border border-blue-200">
+                                    <span class="w-2 h-2 rounded-full bg-brightBlue animate-pulse"></span>
+                                    SIH 2026 • LOCAL SKILLED WORKFORCE MARKETPLACE
+                                </div>
+                                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy tracking-tight leading-[1.1]">
+                                    Find trusted skills. <span class="text-transparent bg-clip-text bg-gradient-to-r from-brightBlue to-deepBlue">Grow together.</span>
+                                </h1>
+                                <p class="text-lg text-slate-600 max-w-2xl leading-relaxed">
+                                    CoopConnect connects customers with verified local skilled workers—making services easier to find, safer to book, and fairer for workers through a cooperative economic model.
+                                </p>
+                                <div class="flex flex-wrap items-center gap-4 pt-2">
+                                    <button onclick="scrollToSection('find-workers-section')" class="bg-brightBlue hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/25 transition-all text-base flex items-center gap-2 group">
+                                        Find a Worker 
+                                        <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                                    </button>
+                                    <button onclick="openWorkerModal()" class="bg-white hover:bg-slate-50 text-navy font-bold px-8 py-4 rounded-2xl border border-slate-200 shadow-sm transition-all text-base flex items-center gap-2">
+                                        Become a Worker
+                                    </button>
+                                </div>
+                                <!-- Trust Indicators -->
+                                <div class="pt-6 border-t border-slate-200/80 flex flex-wrap items-center gap-6 text-sm font-semibold text-slate-700">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">✓</div>
+                                        Verified Workers
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">✓</div>
+                                        Transparent Pricing
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">✓</div>
+                                        Secure Booking
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Hero Search Card -->
+                            <div class="lg:col-span-5">
+                                <div class="bg-white rounded-3xl p-8 shadow-2xl shadow-blue-900/10 border border-slate-100 relative">
+                                    <div class="absolute -top-3 -right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                                        AI Matcher Ready
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-navy mb-6">What service do you need?</h3>
+                                    <form onsubmit="handleHeroSearch(event)" class="space-y-5">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Service Category</label>
+                                            <div class="relative">
+                                                <i data-lucide="search" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
+                                                <input type="text" id="hero-service-input" placeholder="Electrician, plumber, cleaner..." class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 focus:border-brightBlue focus:ring-2 focus:ring-blue-100 outline-none text-slate-800 font-medium transition-all">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Location</label>
+                                            <div class="relative">
+                                                <i data-lucide="map-pin" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
+                                                <input type="text" id="hero-location-input" placeholder="Enter your location (e.g., Lucknow)" value="Lucknow" class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 focus:border-brightBlue focus:ring-2 focus:ring-blue-100 outline-none text-slate-800 font-medium transition-all">
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="w-full bg-gradient-to-r from-navy to-deepBlue hover:from-deepBlue hover:to-brightBlue text-white font-bold py-4 rounded-xl shadow-lg transition-all text-base flex items-center justify-center gap-2">
+                                            Find Workers
+                                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                        </button>
+                                    </form>
+                                    <!-- Popular Searches -->
+                                    <div class="mt-6 pt-6 border-t border-slate-100">
+                                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Popular Searches</span>
+                                        <div class="flex flex-wrap gap-2">
+                                            <button onclick="quickSearch('Electrician')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-brightBlue text-xs font-semibold text-slate-600 transition-colors">Electrician</button>
+                                            <button onclick="quickSearch('Plumber')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-brightBlue text-xs font-semibold text-slate-600 transition-colors">Plumber</button>
+                                            <button onclick="quickSearch('AC Repair')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-brightBlue text-xs font-semibold text-slate-600 transition-colors">AC Repair</button>
+                                            <button onclick="quickSearch('Cleaner')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-brightBlue text-xs font-semibold text-slate-600 transition-colors">Cleaning</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- LIVE DEMO STATS -->
+                <section class="py-12 bg-white border-y border-slate-200/60">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                            <div class="p-4">
+                                <div class="text-3xl lg:text-4xl font-extrabold text-navy mb-1">2,500+</div>
+                                <div class="text-sm font-semibold text-slate-500">Verified Workers</div>
+                            </div>
+                            <div class="p-4">
+                                <div class="text-3xl lg:text-4xl font-extrabold text-navy mb-1">12,000+</div>
+                                <div class="text-sm font-semibold text-slate-500">Jobs Completed</div>
+                            </div>
+                            <div class="p-4">
+                                <div class="text-3xl lg:text-4xl font-extrabold text-navy mb-1">4.8/5</div>
+                                <div class="text-sm font-semibold text-slate-500">Average Rating</div>
+                            </div>
+                            <div class="p-4">
+                                <div class="text-3xl lg:text-4xl font-extrabold text-navy mb-1">25+</div>
+                                <div class="text-sm font-semibold text-slate-500">Service Categories</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- AI DEMO FEATURE SECTION -->
+                <section class="py-16 bg-gradient-to-r from-navy via-deepBlue to-navy text-white relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#2563EB_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                        <div class="max-w-3xl mx-auto text-center mb-10">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold uppercase tracking-wider mb-4 border border-blue-400/30">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> SIH AI Innovation Feature
+                            </div>
+                            <h2 class="text-3xl font-extrabold tracking-tight mb-4">Smart Worker Matching Engine</h2>
+                            <p class="text-slate-300 text-sm sm:text-base">Experience how CoopConnect's intelligent rule-based AI matches emergency service requests instantly with the best nearby verified worker.</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-white/20 max-w-2xl mx-auto">
+                            <div class="mb-4">
+                                <label class="block text-xs font-semibold text-blue-200 uppercase mb-2">Simulate Customer Issue Description</label>
+                                <div class="flex gap-3">
+                                    <input type="text" id="ai-prompt-input" value="My kitchen tap is leaking urgently." class="flex-grow bg-white/10 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-brightBlue">
+                                    <button onclick="runAIMatcher()" class="bg-brightBlue hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg flex items-center gap-2 shrink-0">
+                                        <i data-lucide="cpu" class="w-4 h-4"></i> Match
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="ai-result-box" class="hidden mt-6 p-5 rounded-2xl bg-white/15 border border-white/25 transition-all animate-fadeIn">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80" class="w-12 h-12 rounded-full object-cover border-2 border-emerald-400">
+                                        <div>
+                                            <h4 class="font-bold text-white text-base">Amit Mishra <span class="text-xs font-normal text-emerald-300 ml-2">✓ Verified</span></h4>
+                                            <p class="text-xs text-blue-200">Plumber • 1.4 km away • 4.8 ★</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="inline-block bg-emerald-500/20 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-lg border border-emerald-400/30">94% Match Score</span>
+                                        <p class="text-xs text-slate-300 mt-1">₹299 starting</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-blue-200">
+                                    <span>Matched based on skill, location proximity, & rating.</span>
+                                    <button onclick="openWorkerProfileModal(3)" class="text-white font-bold underline hover:text-brightBlue transition-colors">View Profile & Book →</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SERVICES SECTION -->
+                <section id="services-section" class="py-20 bg-slateBg">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center max-w-3xl mx-auto mb-16">
+                            <h2 class="text-3xl sm:text-4xl font-extrabold text-navy tracking-tight mb-4">Local services, one trusted place.</h2>
+                            <p class="text-slate-600 text-base">Find skilled professionals for everyday household and commercial needs.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            ${renderServiceCard('Electricians', 'Electrical installation, repairs and maintenance.', 'zap', 'yellow')}
+                            ${renderServiceCard('Plumbers', 'Pipes, taps, leaks and plumbing repairs.', 'droplet', 'blue')}
+                            ${renderServiceCard('Carpenters', 'Furniture, doors, repairs and custom work.', 'hammer', 'amber')}
+                            ${renderServiceCard('Cleaners', 'Home and office cleaning services.', 'sparkles', 'emerald')}
+                            ${renderServiceCard('Mechanics', 'Bike, car and vehicle repair.', 'wrench', 'indigo')}
+                            ${renderServiceCard('Appliance Repair', 'AC, washing machine, fridge and microwave fix.', 'cpu', 'purple')}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FIND WORKERS SECTION -->
+                <section id="find-workers-section" class="py-20 bg-navy text-white">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center max-w-3xl mx-auto mb-12">
+                            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">Find the right worker nearby.</h2>
+                            <p class="text-slate-300 text-base">Filter by service, distance, rating, and price to hire verified local talent.</p>
+                        </div>
+
+                        <!-- Search & Filter Panel -->
+                        <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-white/20 mb-12 shadow-2xl">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Service</label>
+                                    <select id="filter-service" onchange="filterWorkersList()" class="w-full bg-white/15 border border-white/20 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-brightBlue">
+                                        <option value="" class="bg-navy text-white">All Services</option>
+                                        <option value="Electrician" class="bg-navy text-white">Electrician</option>
+                                        <option value="Plumber" class="bg-navy text-white">Plumber</option>
+                                        <option value="Carpenter" class="bg-navy text-white">Carpenter</option>
+                                        <option value="Cleaner" class="bg-navy text-white">Cleaner</option>
+                                        <option value="AC Repair" class="bg-navy text-white">AC Repair</option>
+                                        <option value="Mechanic" class="bg-navy text-white">Mechanic</option>
+                                        <option value="Appliance Repair" class="bg-navy text-white">Appliance Repair</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Location</label>
+                                    <input type="text" id="filter-location" value="Lucknow" oninput="filterWorkersList()" placeholder="Location..." class="w-full bg-white/15 border border-white/25 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-brightBlue placeholder-slate-400">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Max Distance</label>
+                                    <select id="filter-distance" onchange="filterWorkersList()" class="w-full bg-white/15 border border-white/20 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-brightBlue">
+                                        <option value="100" class="bg-navy text-white">Any distance</option>
+                                        <option value="2" class="bg-navy text-white">Within 2 km</option>
+                                        <option value="5" class="bg-navy text-white">Within 5 km</option>
+                                        <option value="10" class="bg-navy text-white">Within 10 km</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Minimum Rating</label>
+                                    <select id="filter-rating" onchange="filterWorkersList()" class="w-full bg-white/15 border border-white/20 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-brightBlue">
+                                        <option value="0" class="bg-navy text-white">Any rating</option>
+                                        <option value="4.5" class="bg-navy text-white">4.5+ ★</option>
+                                        <option value="4.8" class="bg-navy text-white">4.8+ ★</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Sort By</label>
+                                    <select id="filter-sort" onchange="filterWorkersList()" class="w-full bg-white/15 border border-white/20 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-brightBlue">
+                                        <option value="recommended" class="bg-navy text-white">Recommended</option>
+                                        <option value="nearest" class="bg-navy text-white">Nearest</option>
+                                        <option value="rating" class="bg-navy text-white">Highest Rated</option>
+                                        <option value="price-low" class="bg-navy text-white">Lowest Price</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Workers Grid -->
+                        <div id="workers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- HOW IT WORKS SECTION -->
+                <section id="how-it-works-section" class="py-20 bg-white">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center max-w-3xl mx-auto mb-16">
+                            <span class="text-brightBlue text-xs font-bold uppercase tracking-widest bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-100 mb-3 inline-block">Simple & Transparent</span>
+                            <h2 class="text-3xl sm:text-4xl font-extrabold text-navy tracking-tight mb-4">How CoopConnect Works</h2>
+                            <p class="text-slate-600 text-base">A seamless four-step experience connecting customers with local talent.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            ${renderStepCard('01', 'Search', 'Choose a service and find available workers nearby instantly.', 'search')}
+                            ${renderStepCard('02', 'Compare', 'Compare verified profiles, ratings, experience, and transparent pricing.', 'sliders')}
+                            ${renderStepCard('03', 'Book', 'Request the service, pick your slot, and confirm your appointment securely.', 'calendar-check')}
+                            ${renderStepCard('04', 'Review', 'Complete the job, pay securely via demo UPI/card, and leave a review.', 'star')}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- COOPERATIVE MODEL SECTION -->
+                <section class="py-20 bg-slateBg border-y border-slate-200">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                            <div class="lg:col-span-6 space-y-6">
+                                <span class="text-emerald-600 text-xs font-bold uppercase tracking-widest bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-100 inline-block">SIH 2026 Core Concept</span>
+                                <h2 class="text-3xl sm:text-4xl font-extrabold text-navy tracking-tight">A platform that grows with its workers.</h2>
+                                <p class="text-slate-600 text-base leading-relaxed">
+                                    CoopConnect is designed around a worker-centric cooperative model where skilled professionals benefit from greater transparency, digital visibility, and fairer participation in the local service economy without exploitative commissions.
+                                </p>
+                                <div class="space-y-4 pt-2">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</div>
+                                        <div>
+                                            <h4 class="font-bold text-navy text-sm">Empowering Local Employment</h4>
+                                            <p class="text-slate-500 text-xs">Retain more earnings and build an independent digital reputation.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</div>
+                                        <div>
+                                            <h4 class="font-bold text-navy text-sm">Transparent & Fair Pricing</h4>
+                                            <p class="text-slate-500 text-xs">No hidden deductions. Fair fees supporting platform maintenance.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="lg:col-span-6">
+                                <div class="bg-white rounded-3xl p-8 shadow-xl border border-slate-200 space-y-6">
+                                    <h3 class="text-xl font-bold text-navy text-center mb-4">Worker Growth Cycle</h3>
+                                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center">
+                                        <div class="bg-blue-50 p-4 rounded-2xl flex-1 border border-blue-100">
+                                            <i data-lucide="user-check" class="w-8 h-8 text-brightBlue mx-auto mb-2"></i>
+                                            <h4 class="font-bold text-navy text-sm">Verified Profile</h4>
+                                        </div>
+                                        <div class="text-slate-300 font-bold">→</div>
+                                        <div class="bg-blue-50 p-4 rounded-2xl flex-1 border border-blue-100">
+                                            <i data-lucide="briefcase" class="w-8 h-8 text-brightBlue mx-auto mb-2"></i>
+                                            <h4 class="font-bold text-navy text-sm">More Jobs</h4>
+                                        </div>
+                                        <div class="text-slate-300 font-bold">→</div>
+                                        <div class="bg-blue-50 p-4 rounded-2xl flex-1 border border-blue-100">
+                                            <i data-lucide="award" class="w-8 h-8 text-brightBlue mx-auto mb-2"></i>
+                                            <h4 class="font-bold text-navy text-sm">Stronger Reputation</h4>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">
+                                        <p class="text-xs font-semibold text-emerald-800">Result: Sustainable livelihood & thriving local community economy.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TRUST & SAFETY SECTION -->
+                <section id="trust-section" class="py-20 bg-white">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center max-w-3xl mx-auto mb-16">
+                            <span class="text-brightBlue text-xs font-bold uppercase tracking-widest bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-100 mb-3 inline-block">Security First</span>
+                            <h2 class="text-3xl sm:text-4xl font-extrabold text-navy tracking-tight mb-4">Built around trust.</h2>
+                            <p class="text-slate-600 text-base">Your safety and data privacy are our highest priorities.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            ${renderTrustCard('Verified Workers', 'Worker profiles include identity verification and skill certificates to help customers make informed decisions.', 'shield-check')}
+                            ${renderTrustCard('Secure Access', 'Role-based access and encrypted prototype storage protect user information and bookings.', 'lock')}
+                            ${renderTrustCard('Trusted Payments', 'Secure demo UPI and card gateways enable safe and convenient digital transactions.', 'credit-card')}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ABOUT & BENEFITS SECTION -->
+                <section id="about-section" class="py-20 bg-slateBg">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center max-w-3xl mx-auto mb-16">
+                            <h2 class="text-3xl sm:text-4xl font-extrabold text-navy tracking-tight mb-4">Why CoopConnect?</h2>
+                            <p class="text-slate-600 text-base">Bridging the trust, opportunity, and digital gaps in local service markets.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xl mb-4">01</div>
+                                <h3 class="text-xl font-bold text-navy mb-2">Trust Gap</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed">Customers struggle to know who they are hiring without reliable verification and peer reviews.</p>
+                            </div>
+                            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                                <div class="w-12 h-12 rounded-2xl bg-blue-100 text-brightBlue flex items-center justify-center font-bold text-xl mb-4">02</div>
+                                <h3 class="text-xl font-bold text-navy mb-2">Opportunity Gap</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed">Skilled local workers struggle to consistently reach customers outside their immediate neighborhood.</p>
+                            </div>
+                            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xl mb-4">03</div>
+                                <h3 class="text-xl font-bold text-navy mb-2">Digital Gap</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed">Many talented service providers lack strong digital profiles to compete with large aggregator apps.</p>
+                            </div>
+                        </div>
+
+                        <!-- Customer & Worker Benefits Side by Side -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                                <h3 class="text-2xl font-bold text-navy mb-6 flex items-center gap-3">
+                                    <i data-lucide="users" class="w-6 h-6 text-brightBlue"></i> For Customers
+                                </h3>
+                                <ul class="space-y-4 text-sm font-semibold text-slate-700">
+                                    <li class="flex items-center gap-3"><span class="text-emerald-600">✓</span> Find nearby verified workers instantly</li>
+                                    <li class="flex items-center gap-3"><span class="text-emerald-600">✓</span> Verified profiles with real ratings & reviews</li>
+                                    <li class="flex items-center gap-3"><span class="text-emerald-600">✓</span> Transparent starting prices & no hidden fees</li>
+                                    <li class="flex items-center gap-3"><span class="text-emerald-600">✓</span> Secure demo payment & instant booking</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                                <h3 class="text-2xl font-bold text-navy mb-6 flex items-center gap-3">
+                                    <i data-lucide="briefcase" class="w-6 h-6 text-emerald-600"></i> For Workers
+                                </h3>
+                                <ul class="space-y-4 text-sm font-semibold text-slate-700">
+                                    <li class="flex items-center gap-3"><span class="text-emerald-600">✓</span> Consistent local customer discovery</li>
+                                    <li class="flex items-center gap-3"><span class="text-emerald-600">✓</span> Build a verified digital reputation</li>
+                                    <li class="flex items-center gap-3"><span class="text-emerald-600">✓</span> Flexible work schedule and direct earnings</li>
+                                    <li class="flex items-center gap-3"><span class="text-emerald-600">✓</span> Reduced dependency on costly middlemen</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderServiceCard(title, desc, iconName, color) {
+            return `
+                <div onclick="filterWorkersByCategory('${title}')" class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border border-slate-200 cursor-pointer group">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-50 text-brightBlue flex items-center justify-center font-bold mb-6 group-hover:bg-brightBlue group-hover:text-white transition-colors">
+                        <i data-lucide="${iconName}" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-navy mb-2 group-hover:text-brightBlue transition-colors">${title}</h3>
+                    <p class="text-slate-600 text-sm mb-6 leading-relaxed">${desc}</p>
+                    <div class="flex items-center justify-between text-xs font-bold text-brightBlue">
+                        <span>Explore Workers</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStepCard(stepNum, title, desc, iconName) {
+            return `
+                <div class="bg-slateBg p-8 rounded-3xl border border-slate-200 relative">
+                    <div class="text-3xl font-extrabold text-brightBlue/20 mb-4">${stepNum}</div>
+                    <div class="w-12 h-12 rounded-2xl bg-white text-brightBlue flex items-center justify-center shadow-sm mb-4">
+                        <i data-lucide="${iconName}" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-navy mb-2">${title}</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">${desc}</p>
+                </div>
+            `;
+        }
+
+        function renderTrustCard(title, desc, iconName) {
+            return `
+                <div class="bg-slateBg p-8 rounded-3xl border border-slate-200">
+                    <div class="w-14 h-14 rounded-2xl bg-white text-emerald-600 flex items-center justify-center shadow-sm mb-6">
+                        <i data-lucide="${iconName}" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-navy mb-3">${title}</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">${desc}</p>
+                </div>
+            `;
+        }
+
+        /* ==========================================
+           4. WORKERS LIST & FILTERING LOGIC
+           ========================================== */
+        function loadWorkersList() {
+            const workers = getWorkers();
+            const grid = document.getElementById('workers-grid');
+            if (!grid) return;
+
+            const serviceFilter = document.getElementById('filter-service')?.value || '';
+            const locationFilter = document.getElementById('filter-location')?.value.toLowerCase() || '';
+            const distanceFilter = parseFloat(document.getElementById('filter-distance')?.value || '100');
+            const ratingFilter = parseFloat(document.getElementById('filter-rating')?.value || '0');
+            const sortFilter = document.getElementById('filter-sort')?.value || 'recommended';
+
+            let filtered = workers.filter(w => {
+                const matchService = !serviceFilter || w.skill.toLowerCase() === serviceFilter.toLowerCase();
+                const matchLocation = !locationFilter || w.location.toLowerCase().includes(locationFilter);
+                const matchDistance = w.distance <= distanceFilter;
+                const matchRating = w.rating >= ratingFilter;
+                return matchService && matchLocation && matchDistance && matchRating;
+            });
+
+            // Sorting
+            if (sortFilter === 'nearest') {
+                filtered.sort((a, b) => a.distance - b.distance);
+            } else if (sortFilter === 'rating') {
+                filtered.sort((a, b) => b.rating - a.rating);
+            } else if (sortFilter === 'price-low') {
+                filtered.sort((a, b) => a.price - b.price);
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center bg-white/5 rounded-3xl border border-white/10">
+                        <i data-lucide="search-x" class="w-12 h-12 text-slate-400 mx-auto mb-3"></i>
+                        <h4 class="text-lg font-bold text-white mb-1">No workers found</h4>
+                        <p class="text-sm text-slate-400">Try adjusting your filters or search location.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            grid.innerHTML = filtered.map(w => `
+                <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/15 hover:border-brightBlue transition-all flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <img src="${w.avatar}" alt="${w.name}" class="w-14 h-14 rounded-2xl object-cover border-2 border-white/30">
+                                <div>
+                                    <h4 class="font-bold text-white text-lg flex items-center gap-1.5">
+                                        ${w.name}
+                                        ${w.verified ? '<span class="text-emerald-400 text-xs font-normal" title="Verified Worker">✓</span>' : ''}
+                                    </h4>
+                                    <span class="inline-block px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold">${w.skill}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-amber-400 font-bold text-sm flex items-center gap-1">★ ${w.rating}</span>
+                                <span class="text-[10px] text-slate-300">(${w.reviews} reviews)</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 mb-6 text-xs text-slate-300">
+                            <div class="flex items-center justify-between">
+                                <span class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-400"></i> ${w.location} (${w.distance} km)</span>
+                                <span class="text-emerald-400 font-semibold">${w.availability}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Jobs Completed: <strong class="text-white">${w.jobsCompleted}</strong></span>
+                                <span class="text-white font-bold">Starts ₹${w.price}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
+                        <button onclick="openWorkerProfileModal(${w.id})" class="bg-white/10 hover:bg-white/20 text-white font-semibold py-2.5 rounded-xl text-xs transition-all text-center">
+                            View Profile
+                        </button>
+                        <button onclick="openBookingModal(${w.id})" class="bg-brightBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md text-center">
+                            Book Now
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function filterWorkersList() {
+            loadWorkersList();
+        }
+
+        function quickSearch(skill) {
+            const serviceSelect = document.getElementById('filter-service');
+            if (serviceSelect) {
+                serviceSelect.value = skill;
+                loadWorkersList();
+                scrollToSection('find-workers-section');
+            }
+        }
+
+        function filterWorkersByCategory(categoryName) {
+            // Map category title to worker skill
+            const skillMap = {
+                'Electricians': 'Electrician',
+                'Plumbers': 'Plumber',
+                'Carpenters': 'Carpenter',
+                'Cleaners': 'Cleaner',
+                'Mechanics': 'Mechanic',
+                'Appliance Repair': 'Appliance Repair'
+            };
+            const skill = skillMap[categoryName] || '';
+            const serviceSelect = document.getElementById('filter-service');
+            if (serviceSelect) {
+                serviceSelect.value = skill;
+                loadWorkersList();
+                scrollToSection('find-workers-section');
+            }
+        }
+
+        function handleHeroSearch(e) {
+            e.preventDefault();
+            const serviceVal = document.getElementById('hero-service-input').value.trim();
+            const locationVal = document.getElementById('hero-location-input').value.trim();
+
+            const serviceSelect = document.getElementById('filter-service');
+            const locationInput = document.getElementById('filter-location');
+
+            if (serviceSelect && serviceVal) {
+                // Try to match dropdown option
+                for (let opt of serviceSelect.options) {
+                    if (opt.value.toLowerCase().includes(serviceVal.toLowerCase())) {
+                        serviceSelect.value = opt.value;
+                        break;
+                    }
+                }
+            }
+            if (locationInput && locationVal) {
+                locationInput.value = locationVal;
+            }
+
+            loadWorkersList();
+            scrollToSection('find-workers-section');
+            showToast('Workers filtered based on search criteria!', 'success');
+        }
+
+        function runAIMatcher() {
+            const prompt = document.getElementById('ai-prompt-input').value;
+            const resultBox = document.getElementById('ai-result-box');
+            resultBox.classList.remove('hidden');
+            showToast('AI Matcher analyzed issue and found best local worker!', 'success');
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        /* ==========================================
+           5. MODAL SYSTEM (Profile, Booking, Payment, Rating, Worker Registration)
+           ========================================== */
+        const modalContainer = document.getElementById('modal-container');
+
+        function closeModal() {
+            modalContainer.innerHTML = '';
+        }
+
+        /* WORKER PROFILE MODAL */
+        function openWorkerProfileModal(workerId) {
+            const workers = getWorkers();
+            const worker = workers.find(w => w.id === workerId);
+            if (!worker) return;
+
+            modalContainer.innerHTML = `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/80 backdrop-blur-sm animate-fadeIn">
+                    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl relative">
+                        <button onclick="closeModal()" class="absolute top-6 right-6 p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+
+                        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
+                            <img src="${worker.avatar}" alt="${worker.name}" class="w-24 h-24 rounded-3xl object-cover shadow-md border-2 border-slate-100">
+                            <div class="text-center sm:text-left flex-grow">
+                                <div class="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                                    <h2 class="text-2xl font-bold text-navy">${worker.name}</h2>
+                                    ${worker.verified ? '<span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-full">✓ Verified</span>' : ''}
+                                </div>
+                                <p class="text-brightBlue font-semibold text-sm mb-2">${worker.skill} • ${worker.experience || '5+ Years Experience'}</p>
+                                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs font-semibold text-slate-600">
+                                    <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-brightBlue"></i> ${worker.location} (${worker.distance} km away)</span>
+                                    <span class="flex items-center gap-1 text-amber-500 font-bold">★ ${worker.rating} (${worker.reviews} reviews)</span>
+                                    <span>${worker.jobsCompleted} Jobs Done</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">About Worker</h4>
+                                <p class="text-slate-700 text-sm leading-relaxed">${worker.bio || 'Experienced local professional dedicated to reliable, high-quality service and customer satisfaction.'}</p>
+                            </div>
+
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Services Offered</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${(worker.servicesOffered || [worker.skill, 'General Repair', 'Inspection']).map(s => `
+                                        <span class="px-3 py-1.5 rounded-xl bg-blue-50 text-brightBlue text-xs font-semibold border border-blue-100">${s}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between p-4 rounded-2xl bg-slateBg border border-slate-200">
+                                <div>
+                                    <span class="text-xs text-slate-500 block">Starting Price</span>
+                                    <span class="text-xl font-extrabold text-navy">₹${worker.price}</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-slate-500 block">Availability</span>
+                                    <span class="text-sm font-bold text-emerald-600">${worker.availability}</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                                <button onclick="closeModal()" class="py-3.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-all">
+                                    Close
+                                </button>
+                                <button onclick="closeModal(); openBookingModal(${worker.id})" class="bg-brightBlue hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all text-sm flex items-center justify-center gap-2">
+                                    Book Now <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        /* BOOKING MODAL */
+        function openBookingModal(workerId) {
+            const workers = getWorkers();
+            const worker = workers.find(w => w.id === workerId);
+            if (!worker) return;
+
+            const today = new Date().toISOString().split('T')[0];
+
+            modalContainer.innerHTML = `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/80 backdrop-blur-sm animate-fadeIn">
+                    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
+                        <button onclick="closeModal()" class="absolute top-6 right-6 p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                        
+                        <div class="flex items-center gap-3 mb-6">
+                            <img src="${worker.avatar}" class="w-12 h-12 rounded-2xl object-cover">
+                            <div>
+                                <h3 class="text-xl font-bold text-navy">Book ${worker.name}</h3>
+                                <p class="text-xs text-brightBlue font-semibold">${worker.skill} • ₹${worker.price} starting</p>
+                            </div>
+                        </div>
+
+                        <form id="booking-form" onsubmit="submitBooking(event, ${worker.id})" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Select Service</label>
+                                <select id="booking-service" class="w-full p-3.5 rounded-xl border border-slate-200 text-slate-800 text-sm font-semibold outline-none focus:border-brightBlue">
+                                    <option value="${worker.skill} General Service">${worker.skill} General Service (₹${worker.price})</option>
+                                    <option value="${worker.skill} Premium Inspection">${worker.skill} Premium Inspection & Repair (₹${worker.price + 200})</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Date</label>
+                                    <input type="date" id="booking-date" value="${today}" min="${today}" required class="w-full p-3.5 rounded-xl border border-slate-200 text-slate-800 text-sm font-semibold outline-none focus:border-brightBlue">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Time Slot</label>
+                                    <select id="booking-time" class="w-full p-3.5 rounded-xl border border-slate-200 text-slate-800 text-sm font-semibold outline-none focus:border-brightBlue">
+                                        <option value="10:00 AM">10:00 AM</option>
+                                        <option value="12:00 PM">12:00 PM</option>
+                                        <option value="03:00 PM">03:00 PM</option>
+                                        <option value="05:00 PM">05:00 PM</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Service Address</label>
+                                <input type="text" id="booking-address" placeholder="Enter house no, street, area, city..." value="Flat 402, Gomti Nagar, Lucknow" required class="w-full p-3.5 rounded-xl border border-slate-200 text-slate-800 text-sm font-semibold outline-none focus:border-brightBlue">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Additional Instructions (Optional)</label>
+                                <textarea id="booking-notes" placeholder="Mention any specific issue or instructions..." class="w-full p-3 rounded-xl border border-slate-200 text-slate-800 text-sm outline-none focus:border-brightBlue h-20 resize-none"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full bg-brightBlue hover:bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg transition-all text-base flex items-center justify-center gap-2">
+                                Continue to Summary <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function submitBooking(e, workerId) {
+            e.preventDefault();
+            const workers = getWorkers();
+            const worker = workers.find(w => w.id === workerId);
+
+            const service = document.getElementById('booking-service').value;
+            const date = document.getElementById('booking-date').value;
+            const time = document.getElementById('booking-time').value;
+            const address = document.getElementById('booking-address').value;
+
+            const baseAmount = worker.price;
+            const platformFee = 20;
+            const total = baseAmount + platformFee;
+
+            const bookingId = 'CC-BK-' + Math.floor(1000 + Math.random() * 9000);
+
+            const bookingObj = {
+                id: bookingId,
+                workerId: worker.id,
+                workerName: worker.name,
+                skill: worker.skill,
+                service: service,
+                date: date,
+                time: time,
+                address: address,
+                amount: total,
+                status: 'Confirmed',
+                paymentStatus: 'Pending',
+                createdAt: new Date().toISOString()
+            };
+
+            saveBooking(bookingObj);
+            openBookingSummaryModal(bookingObj);
+        }
+
+        /* BOOKING SUMMARY MODAL */
+        function openBookingSummaryModal(booking) {
+            modalContainer.innerHTML = `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/80 backdrop-blur-sm animate-fadeIn">
+                    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+                        <div class="text-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3 font-bold text-lg">✓</div>
+                            <h3 class="text-2xl font-bold text-navy">Booking Summary</h3>
+                            <p class="text-xs text-slate-500">Review details before final confirmation</p>
+                        </div>
+
+                        <div class="space-y-3 mb-6 bg-slateBg p-4 rounded-2xl border border-slate-200 text-sm">
+                            <div class="flex justify-between"><span class="text-slate-500">Booking ID:</span><span class="font-bold text-navy">${booking.id}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Worker:</span><span class="font-bold text-navy">${booking.workerName} (${booking.skill})</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Service:</span><span class="font-medium text-slate-800">${booking.service}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Date & Time:</span><span class="font-medium text-slate-800">${booking.date} at ${booking.time}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Address:</span><span class="font-medium text-slate-800 text-right truncate max-w-[200px]">${booking.address}</span></div>
+                            <hr class="border-slate-200 my-2">
+                            <div class="flex justify-between"><span class="text-slate-500">Service Fee:</span><span class="font-semibold">₹${booking.amount - 20}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Platform Fee:</span><span class="font-semibold">₹20</span></div>
+                            <div class="flex justify-between text-base font-extrabold text-navy pt-2 border-t border-slate-200"><span>Total Amount:</span><span>₹${booking.amount}</span></div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <button onclick="openPaymentModal('${booking.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all text-base flex items-center justify-center gap-2">
+                                Confirm & Proceed to Payment <i data-lucide="shield-check" class="w-5 h-5"></i>
+                            </button>
+                            <button onclick="openDashboard()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all text-sm">
+                                View in Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        /* PAYMENT FLOW MODAL */
+        function openPaymentModal(bookingId) {
+            const bookings = getBookings();
+            const booking = bookings.find(b => b.id === bookingId);
+            if (!booking) return;
+
+            modalContainer.innerHTML = `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/80 backdrop-blur-sm animate-fadeIn">
+                    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+                        <button onclick="closeModal()" class="absolute top-6 right-6 p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-navy">Secure Demo Payment</h3>
+                            <p class="text-xs text-slate-500">Total Payable: <strong class="text-navy">₹${booking.amount}</strong></p>
+                        </div>
+
+                        <!-- Payment Options -->
+                        <div class="space-y-3 mb-6">
+                            <label class="flex items-center gap-3 p-3.5 rounded-2xl border-2 border-brightBlue bg-blue-50/50 cursor-pointer">
+                                <input type="radio" name="pay-method" checked class="text-brightBlue">
+                                <i data-lucide="smartphone" class="w-5 h-5 text-brightBlue"></i>
+                                <span class="font-bold text-sm text-navy">UPI / Google Pay / PhonePe / Paytm</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 cursor-pointer">
+                                <input type="radio" name="pay-method" class="text-brightBlue">
+                                <i data-lucide="credit-card" class="w-5 h-5 text-slate-600"></i>
+                                <span class="font-bold text-sm text-slate-700">Credit / Debit Card (Demo)</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 cursor-pointer">
+                                <input type="radio" name="pay-method" class="text-brightBlue">
+                                <i data-lucide="building" class="w-5 h-5 text-slate-600"></i>
+                                <span class="font-bold text-sm text-slate-700">Net Banking</span>
+                            </label>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 mb-6 flex items-start gap-2">
+                            <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                            <span>DEMO TRANSACTION — No real card numbers or credentials are collected or processed.</span>
+                        </div>
+
+                        <button onclick="processPayment('${booking.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all text-base flex items-center justify-center gap-2">
+                            Pay Securely ₹${booking.amount} <i data-lucide="check" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function processPayment(bookingId) {
+            updateBooking(bookingId, { status: 'Confirmed & Paid', paymentStatus: 'Paid' });
+            showToast('Payment Successful! Transaction ID: CC-DEMO-847291', 'success');
+
+            // Open Rating / Success Modal
+            openRatingModal(bookingId);
+        }
+
+        /* RATINGS & REVIEWS MODAL */
+        function openRatingModal(bookingId) {
+            modalContainer.innerHTML = `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/80 backdrop-blur-sm animate-fadeIn">
+                    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative text-center">
+                        <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4 font-bold text-xl">✓</div>
+                        <h3 class="text-2xl font-bold text-navy mb-1">Rate Your Experience</h3>
+                        <p class="text-xs text-slate-500 mb-6">How was your service with CoopConnect?</p>
+
+                        <!-- Star Rating Selector -->
+                        <div id="star-container" class="flex justify-center gap-2 mb-6">
+                            <button onclick="setRating(1)" class="text-3xl text-amber-400 focus:outline-none star-btn" data-value="1">★</button>
+                            <button onclick="setRating(2)" class="text-3xl text-amber-400 focus:outline-none star-btn" data-value="2">★</button>
+                            <button onclick="setRating(3)" class="text-3xl text-amber-400 focus:outline-none star-btn" data-value="3">★</button>
+                            <button onclick="setRating(4)" class="text-3xl text-amber-400 focus:outline-none star-btn" data-value="4">★</button>
+                            <button onclick="setRating(5)" class="text-3xl text-amber-400 focus:outline-none star-btn" data-value="5">★</button>
+                        </div>
+                        <input type="hidden" id="selected-rating-val" value="5">
+
+                        <div class="mb-6 text-left">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Write Review</label>
+                            <textarea id="review-text-input" placeholder="Tell us about your experience..." class="w-full p-3.5 rounded-xl border border-slate-200 text-slate-800 text-sm outline-none focus:border-brightBlue h-24 resize-none"></textarea>
+                        </div>
+
+                        <button onclick="submitReview('${bookingId}')" class="w-full bg-brightBlue hover:bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg transition-all text-base flex items-center justify-center gap-2">
+                            Submit Review & Complete <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function setRating(val) {
+            document.getElementById('selected-rating-val').value = val;
+            const buttons = document.querySelectorAll('.star-btn');
+            buttons.forEach((btn, idx) => {
+                if (idx < val) {
+                    btn.classList.remove('text-slate-300');
+                    btn.classList.add('text-amber-400');
+                } else {
+                    btn.classList.remove('text-amber-400');
+                    btn.classList.add('text-slate-300');
+                }
+            });
+        }
+
+        function submitReview(bookingId) {
+            const rating = document.getElementById('selected-rating-val').value;
+            const text = document.getElementById('review-text-input').value;
+
+            saveReviewData({ bookingId, rating, text, createdAt: new Date().toISOString() });
+            showToast('Thank you for your feedback! Review saved.', 'success');
+            closeModal();
+        }
+
+        /* WORKER REGISTRATION MODAL */
+        function openWorkerModal() {
+            modalContainer.innerHTML = `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/80 backdrop-blur-sm animate-fadeIn">
+                    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl relative">
+                        <button onclick="closeModal()" class="absolute top-6 right-6 p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+
+                        <div class="mb-6">
+                            <span class="text-brightBlue text-xs font-bold uppercase tracking-widest bg-blue-50 px-3.5 py-1 rounded-full border border-blue-100 mb-2 inline-block">Worker Empowerment</span>
+                            <h2 class="text-2xl font-bold text-navy">Turn your skills into opportunities.</h2>
+                            <p class="text-xs text-slate-500 mt-1">Join CoopConnect and connect directly with local customers.</p>
+                        </div>
+
+                        <form onsubmit="submitWorkerRegistration(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Full Name</label>
+                                <input type="text" id="reg-name" placeholder="Enter your full name" required class="w-full p-3.5 rounded-xl border border-slate-200 text-slate-800 text-sm font-semibold outline-none focus:border-brightBlue">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Phone Number</label>
+                                    <input type="tel" id="reg-phone" placeholder="9876543210" required class="w-full p-3.5 rounded-xl border border-slate-200 text-slate-800 text-sm font-semibold outline-none focus:border-brightBlue">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">City / Location</label>
+                                    <input type="text" id="reg-location" value="Lucknow" required class="w-full p-3.5 rounded-xl border border-slate-200 text-slate-800 text-sm font-semibold outline-none focus:border-brightBlue">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Skill Category</label>
+                                    <select id="reg-skill" class="w-full p-3.5 rounded-xl border border-slate-200 text-slate-800 text-sm font-semibold outline-none focus:border-brightBlue">
+                                        <option value="Electrician">Electrician</option>
+                                        <option value="Plumber">Plumber</option>
+                                        <option value="Carpenter">Carpenter</option>
+                                        <option value="Cleaner">Cleaner</option>
+                                        <option value="AC Repair">AC Repair</option>
+                                        <option value="Mechanic">Mechanic</option>
+                                        <option value="Appliance Repair">Appliance Repair</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Starting Price (₹)</label>
+                                    <input type="number" id="reg-price" value="299" required class="w-full p-3.5 rounded-xl border border-slate-200 text-slate-800 text-sm font-semibold outline-none focus:border-brightBlue">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Short Bio</label>
+                                <textarea id="reg-bio" placeholder="Describe your experience and specialties..." class="w-full p-3 rounded-xl border border-slate-200 text-slate-800 text-sm outline-none focus:border-brightBlue h-20 resize-none"></textarea>
+                            </div>
+                            <div class="flex items-center gap-2 pt-2">
+                                <input type="checkbox" id="reg-check" required class="rounded text-brightBlue focus:ring-brightBlue">
+                                <label for="reg-check" class="text-xs text-slate-600">I agree to CoopConnect's worker verification & cooperative compliance process.</label>
+                            </div>
+
+                            <button type="submit" class="w-full bg-navy hover:bg-deepBlue text-white font-bold py-4 rounded-xl shadow-lg transition-all text-base flex items-center justify-center gap-2 mt-4">
+                                Create Worker Profile <i data-lucide="user-plus" class="w-5 h-5"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function submitWorkerRegistration(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const skill = document.getElementById('reg-skill').value;
+            const location = document.getElementById('reg-location').value;
+            const price = parseInt(document.getElementById('reg-price').value) || 299;
+            const bio = document.getElementById('reg-bio').value;
+
+            const workers = getWorkers();
+            const newWorker = {
+                id: workers.length + 1,
+                name: name,
+                skill: skill,
+                location: location,
+                distance: 1.2,
+                rating: 5.0,
+                reviews: 1,
+                jobsCompleted: 0,
+                price: price,
+                verified: true,
+                availability: 'Available Today',
+                experience: 'Verified Professional',
+                bio: bio || 'Skilled local service professional registered on CoopConnect.',
+                servicesOffered: [skill, 'Inspection', 'Emergency Repair'],
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
+            };
+
+            workers.unshift(newWorker);
+            saveWorkers(workers);
+            closeModal();
+            showToast('Worker Profile Submitted & Verified successfully!', 'success');
+            loadWorkersList();
+        }
+
+        /* ==========================================
+           6. DEMO DASHBOARD PAGE
+           ========================================== */
+        function openDashboard() {
+            router.navigate('dashboard');
+        }
+
+        function renderDashboardPage() {
+            const bookings = getBookings();
+            const workers = getWorkers();
+            const reviews = getReviews();
+
+            return `
+                <div class="py-12 bg-slateBg min-h-screen">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                            <div>
+                                <span class="text-brightBlue text-xs font-bold uppercase tracking-widest bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-100 mb-2 inline-block">SIH Prototype Dashboard</span>
+                                <h1 class="text-3xl font-extrabold text-navy tracking-tight">CoopConnect Demo Dashboard</h1>
+                                <p class="text-slate-600 text-sm">Manage active bookings, worker requests, and platform activity.</p>
+                            </div>
+                            <button onclick="router.navigate('home')" class="bg-navy text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md hover:bg-deepBlue transition-all flex items-center gap-2 self-start">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Marketplace
+                            </button>
+                        </div>
+
+                        <!-- Dashboard Tabs Grid -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Bookings</span>
+                                    <i data-lucide="calendar" class="w-5 h-5 text-brightBlue"></i>
+                                </div>
+                                <div class="text-3xl font-extrabold text-navy">${bookings.length}</div>
+                                <p class="text-xs text-slate-500 mt-1">Saved in LocalStorage persistence</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Registered Workers</span>
+                                    <i data-lucide="users" class="w-5 h-5 text-emerald-600"></i>
+                                </div>
+                                <div class="text-3xl font-extrabold text-navy">${workers.length}</div>
+                                <p class="text-xs text-slate-500 mt-1">Verified local service providers</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Demo Earnings</span>
+                                    <i data-lucide="credit-card" class="w-5 h-5 text-amber-500"></i>
+                                </div>
+                                <div class="text-3xl font-extrabold text-navy">₹${bookings.reduce((acc, b) => acc + (b.amount || 0), 0)}</div>
+                                <p class="text-xs text-slate-500 mt-1">Total demo transaction volume</p>
+                            </div>
+                        </div>
+
+                        <!-- Active Bookings List -->
+                        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 mb-8">
+                            <h3 class="text-xl font-bold text-navy mb-6">Recent Bookings & Requests</h3>
+                            ${bookings.length === 0 ? `
+                                <div class="text-center py-12 text-slate-400">
+                                    <p class="text-sm">No bookings found. Book a worker from the marketplace to test the flow!</p>
+                                </div>
+                            ` : `
+                                <div class="space-y-4">
+                                    ${bookings.map(b => `
+                                        <div class="p-5 rounded-2xl bg-slateBg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                            <div>
+                                                <div class="flex items-center gap-2 mb-1">
+                                                    <span class="font-bold text-navy text-base">${b.workerName}</span>
+                                                    <span class="px-2 py-0.5 rounded-full bg-blue-100 text-brightBlue text-xs font-semibold">${b.skill}</span>
+                                                    <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">${b.status}</span>
+                                                </div>
+                                                <p class="text-xs text-slate-600">${b.service} • ${b.date} at ${b.time}</p>
+                                                <p class="text-xs text-slate-500 mt-1">Address: ${b.address}</p>
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <span class="font-extrabold text-navy text-lg">₹${b.amount}</span>
+                                                ${b.paymentStatus !== 'Paid' ? `
+                                                    <button onclick="openPaymentModal('${b.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md">
+                                                        Pay Now
+                                                    </button>
+                                                ` : `
+                                                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100">Paid ✓</span>
+                                                `}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `}
+                        </div>
+
+                        <!-- Technical Architecture & SIH Note -->
+                        <div class="bg-navy text-white rounded-3xl p-8 shadow-xl">
+                            <h3 class="text-xl font-bold mb-3">Technical Architecture & SIH Note</h3>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                                This production-quality startup prototype runs entirely on modern frontend React/Vanilla JS components with LocalStorage persistence. For production scale (SIH Phase 3), it integrates with Node.js/Express backend, MongoDB, Firebase Auth, and Google Maps API.
+                            </p>
+                            <div class="flex flex-wrap gap-4">
+                                <button onclick="localStorage.clear(); initDefaultData(); location.reload();" class="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all">
+                                    Reset Demo Data
+                                </button>
+                                <button onclick="showToast('Architecture exported successfully!', 'success')" class="bg-white/10 hover:bg-white/20 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all">
+                                    Export Architecture PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ==========================================
+           7. INITIALIZATION ON PAGE LOAD
+           ========================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            renderApp();
+            loadWorkersList();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
+
